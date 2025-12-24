@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>聖誕節抽獎活動</title>
+
+<style>
+body{
+margin:0;
+font-family:"Noto Sans TC",sans-serif;
+background:radial-gradient(circle,#111,#000);
+color:#d4af37;
+overflow:hidden;
+}
+.container{
+max-width:420px;
+margin:auto;
+padding:20px;
+text-align:center;
+position:relative;
+z-index:2;
+}
+h1{letter-spacing:2px;margin-bottom:20px;}
+.grid{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:10px;
+}
+.cell{
+border:2px solid #d4af37;
+border-radius:12px;
+padding:15px;
+min-height:80px;
+display:flex;
+align-items:center;
+justify-content:center;
+background:linear-gradient(145deg,#1a1a1a,#000);
+transition:.2s;
+font-size:14px;
+}
+.cell.active{
+background:#d4af37;
+color:#000;
+box-shadow:0 0 20px #d4af37;
+}
+button{
+margin-top:25px;
+padding:12px 30px;
+border:none;
+border-radius:30px;
+background:linear-gradient(145deg,#d4af37,#b8962e);
+font-weight:bold;
+font-size:16px;
+cursor:pointer;
+}
+button:disabled{opacity:.4;cursor:not-allowed;}
+.result{
+margin-top:20px;
+font-size:18px;
+min-height:30px;
+}
+#goldFlash{
+display:none;
+position:fixed;
+inset:0;
+background:radial-gradient(circle,#ffd70088,transparent 60%);
+animation:flash 1s infinite;
+z-index:3;
+}
+@keyframes flash{
+0%{opacity:0;}
+50%{opacity:1;}
+100%{opacity:0;}
+}
+.snow{
+position:fixed;
+top:-10px;
+color:white;
+font-size:12px;
+animation:fall linear infinite;
+z-index:1;
+}
+@keyframes fall{
+to{transform:translateY(110vh);}
+}
+</style>
+</head>
+
+<body>
+<div id="goldFlash"></div>
+
+<div class="container">
+<h1>🎄 聖誕節抽獎活動 🎄</h1>
+
+<div class="grid" id="grid"></div>
+
+<button id="drawBtn" onclick="startLottery()">開始抽獎</button>
+<div class="result" id="result"></div>
+</div>
+
+<!-- 聖誕音樂 -->
+<audio id="music" autoplay loop></audio>
+
+<script>
+/* 一次抽限制 */
+if(localStorage.getItem("drawn")){
+document.getElementById("drawBtn").disabled=true;
+document.getElementById("result").innerText="你已經抽過囉 🎁";
+}
+
+/* 獎項 */
+const prizes=[
+"油壓刮痧5分鐘","油壓刮痧5分鐘",頭部按摩5分鐘","頭部按摩5分鐘",
+"頭部按摩5分鐘","無限親親💋","無限抱抱🫂",
+"油壓＋指壓 10 分鐘",
+"再接再厲，運氣留在期末考 🍀"
+];
+
+const grid=document.getElementById("grid");
+prizes.forEach(p=>{
+const d=document.createElement("div");
+d.className="cell";
+d.innerText=p;
+grid.appendChild(d);
+});
+
+/* 抽獎動畫 */
+function startLottery(){
+if(localStorage.getItem("drawn")) return;
+localStorage.setItem("drawn",true);
+document.getElementById("drawBtn").disabled=true;
+
+const cells=document.querySelectorAll(".cell");
+let i=0,count=0;
+const stop=Math.floor(Math.random()*30)+30;
+const timer=setInterval(()=>{
+cells.forEach(c=>c.classList.remove("active"));
+cells[i%cells.length].classList.add("active");
+i++;count++;
+if(count>stop){
+clearInterval(timer);
+const win=cells[(i-1)%cells.length].innerText;
+const result=document.getElementById("result");
+if(win.includes("10")){
+document.getElementById("goldFlash").style.display="block";
+result.innerText="🎉 恭喜抽中最大獎 🎉\n"+win;
+}else{
+result.innerText="你抽到："+win;
+}
+}
+},100);
+}
+
+/* 隨機聖誕音樂 */
+const songs=[
+"https://cdn.pixabay.com/audio/2022/10/25/audio_7b8a9a3f14.mp3",
+"https://cdn.pixabay.com/audio/2021/12/21/audio_9e52c59e87.mp3"
+];
+const music=document.getElementById("music");
+music.src=songs[Math.floor(Math.random()*songs.length)];
+
+/* 飄雪 */
+for(let i=0;i<40;i++){
+const s=document.createElement("div");
+s.className="snow";
+s.innerText="❄";
+s.style.left=Math.random()*100+"vw";
+s.style.animationDuration=5+Math.random()*5+"s";
+s.style.fontSize=10+Math.random()*10+"px";
+document.body.appendChild(s);
+}
+</script>
+</body>
+</html>
